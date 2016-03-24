@@ -9,6 +9,9 @@
 char*	getEnvVal(char*);
 char*	readLine(int);
 char*	parseLine(char*);
+int 	findDollarSign(char*, int);
+int		isValidForm(char*, int);
+int		getVarLength(char*, int);
 int		firstChar(char, int, int);
 int		isValidFirstChar(char);
 int		isValidChar(char);
@@ -19,5 +22,7 @@ char*	extract(char*, int, int);
  */
 char*	stringCopy(char*);
 int 	stringLength(char*);
+char*	getSubString(char*, int, int);
+char*	concatString(char*, char*);
 
 #endif

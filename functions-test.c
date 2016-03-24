@@ -133,137 +133,255 @@ START_TEST(readLineTest)
 }
 END_TEST
 
-START_TEST(parseLineTest1)
+START_TEST(findDollarSignTest)
 {
 #line 109
-	/* TEST INPUT 1 */
-	char* pltest;
-	pltest = "this is a test";
-	char* pltest_expected;
-	pltest_expected = "this is a test";
+	char* test;
+	test = "this is a $test";
+	int expected;
+	expected = 10;
+	int observed;
+	observed = findDollarSign(test, 0);
 
-	char* parsed;
-
-	/* CHECK INPUT 1 */
-	parsed = parseLine(pltest);
-	printf("input: %s\n", pltest);
-	printf("PARSELINE TEST 1 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 1 returned value: %s\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
-	printf("\n");
+	fail_unless(expected == observed, "dollar sign not found at correct location");
 
 }
 END_TEST
 
-START_TEST(parseLineTest2)
+START_TEST(isValidFormTest1)
 {
-#line 125
-	/* TEST INPUT 2 */
-	char* pltest;
-	pltest = "$path";
-	char* pltest_expected;
-	pltest_expected = " ";
+#line 119
+	char* test;
+	test = "$";
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
 
-	char* parsed;
+	fail_unless(observed == expected);
 
-	/* CHECK INPUT 2 */
-	parsed = parseLine(pltest);
-	printf("input: %s\n", pltest);
-	printf("PARSELINE TEST 2 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 2 returned value: %s\n\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
+}
+END_TEST
+
+START_TEST(isValidFormTest2)
+{
+#line 129
+	char* test;
+	test = "$var";
+	int expected;
+	expected = 1;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+}
+END_TEST
+
+START_TEST(isValidFormTest3)
+{
+#line 139
+	char* test;
+	test = "$3rf";
+	fail_unless(stringLength(test) == 4, "stringLenth invalid\n");
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+}
+END_TEST
+
+START_TEST(isValidFormTest4)
+{
+#line 150
+	char* test;
+	test = "$_var";
+	int expected;
+	expected = 1;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+}
+END_TEST
+
+START_TEST(isValidFormTest5)
+{
+#line 160
+	char* test;
+	test = "$v=r";
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+}
+END_TEST
+
+START_TEST(isValidFormTest6)
+{
+#line 170
+	char* test;
+	test = "$ ";
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+}
+END_TEST
+
+START_TEST(getVarLength1)
+{
+#line 180
+	char* test;
+	test = "get the $var length";
+	int expected;
+	expected = 4;
+	int observed;
+	observed = getVarLength(test, 8);
+	
+	fail_unless(expected == observed, "expected did not equal observed");
+
+}
+END_TEST
+
+START_TEST(getVarLength2)
+{
+#line 190
+	char* test;
+	test = "get the $var";
+	int expected;
+	expected = 4;
+	int observed;
+	observed = getVarLength(test, 8);
+	
+	fail_unless(expected == observed, "expected did not equal observed");
+
+}
+END_TEST
+
+START_TEST(getSubString1)
+{
+#line 200
+	char* test;
+	test = "$var $var";
+	char* expected;
+	expected = "$var";
+	char* observed;
+	observed = getSubString(test, 0, 3);
+
+	fail_unless(strcmp(expected, observed) == 0, "expected was not equal to observed");
 	
 }
 END_TEST
 
-START_TEST(parseLineTest3)
+START_TEST(getSubString2)
 {
-#line 140
-	/* TEST INPUT 3 */
+#line 210
+	char* test;
+	test = "$var $var";
+	char* expected;
+	expected = "$var";
+	char* observed;
+	observed = getSubString(test, 5, 8);
+
+	fail_unless(strcmp(expected, observed) == 0, "expected was not equal to observed");
+#
+}
+END_TEST
+
+START_TEST(parseLine1)
+{
+#line 220
 	setenv("var", "new value", 0);
-	fail_unless(strcmp(getEnvVal("var"), "new value") == 0, "setting environment variable failed in test setup");
-	char* pltest;
-	pltest = "$var";
-	char* pltest_expected;
-	pltest_expected = "new value";
-
+	printf("test1\n");
+	char* test;
+	test = "$var $2var";
 	char* parsed;
-
-	/* CHECK INPUT 3 */
-	parsed = parseLine(pltest);
-	printf("input: %s\n", pltest);
-	printf("PARSELINE TEST 3 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 3 returned value: %s\n\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
+	parsed = parseLine(test);
 
 }
 END_TEST
 
-START_TEST(parseLineTest4)
+START_TEST(parseLine2)
 {
-#line 157
-	/* TEST INPUT 4 */
-	char* pltest;
-	pltest = "$PATH $PATH $PATH $PATH $PATH";
-	char* pltest_expected;
-	pltest_expected = NULL;
-
-	char* parsed;
-
-	/* CHECK INPUT 4 */
-	parsed = parseLine(pltest);
-	printf("input: %s\n", pltest);
-	printf("PARSELINE TEST 4 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 4 returned value: %s\n\n", parsed);
-	fail_unless(parsed == pltest_expected, "returned string was not the same as expected\n");
-
-}
-END_TEST
-
-START_TEST(parseLineTest5)
-{
-#line 172
-	/* TEST INPUT 5 */
-	char* pltest;
-	pltest = "$PATH$PATH";
-	char* pltest_expected;
-	pltest_expected = " ";
-
-	char* parsed;
-
-	/* CHECK INPUT 5 */
-	parsed = parseLine(pltest);
-	printf("input: %s\n", pltest);
-	printf("PARSELINE TEST 5 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 5 returned value: %s\n\n", parsed);
-	fail_unless(parsed == pltest_expected, "returned string was not the same as expected\n");
-
-}
-END_TEST
-
-START_TEST(parseLineTest6)
-{
-#line 187
-	/* TEST INPUT 6 */
+#line 228
 	setenv("var", "new value", 0);
-	fail_unless(strcmp(getEnvVal("var"), "new value") == 0, "setting environment variable failed in test setup");
-	char* pltest;
-	pltest = "$var ";
-	char* pltest_expected;
-	pltest_expected = "new value";
-
+	printf("test2\n");
+	char* test;
+	test = "$var $var";
 	char* parsed;
+	parsed = parseLine(test);
 
-	/* CHECK INPUT 6 */
-	parsed = parseLine(pltest);
-	printf("input: %s\n", pltest);
-	printf("PARSELINE TEST 6 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 6 returned value: %s\n\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
+}
+END_TEST
+
+START_TEST(concatString1)
+{
+#line 236
+	char* str1;
+	char* str2;
+	char* expected;
+	char* observed;
+
+	str1 = "var ";
+	str2 = "var";
+	expected = "var var";
+	observed = concatString(str1, str2);
+	printf("%s\n", observed);
+
+	fail_unless(strcmp(expected,observed) == 0, "not equal strings");
+
+}
+END_TEST
+
+START_TEST(concatString2)
+{
+#line 250
+	char* str1;
+	char* str2;
+	char* str3;
+	char* expected;
+	char* observed;
+	char* test;
+
+	test = "beginning middle end";
+	str1 = getSubString(test, 0, 9);
+	str2 = getSubString(test, 10, 15);
+	str3 = getSubString(test, 16, 19);
+	expected = "beginning middle end";
+	char* half;
+	half = concatString(str1, str2);
+	observed = concatString(half, str3);
+	printf("%s\n", observed);
+
+	fail_unless(strcmp(expected,observed) == 0, "not equal strings");
+	fail_unless(stringLength(test) == 20, "fail");	
 
 
 
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -305,12 +423,21 @@ int main(void)
     tcase_add_test(tc1_1, stringLengthTest);
     tcase_add_test(tc1_1, stringCopyTest);
     tcase_add_test(tc1_1, readLineTest);
-    tcase_add_test(tc1_1, parseLineTest1);
-    tcase_add_test(tc1_1, parseLineTest2);
-    tcase_add_test(tc1_1, parseLineTest3);
-    tcase_add_test(tc1_1, parseLineTest4);
-    tcase_add_test(tc1_1, parseLineTest5);
-    tcase_add_test(tc1_1, parseLineTest6);
+    tcase_add_test(tc1_1, findDollarSignTest);
+    tcase_add_test(tc1_1, isValidFormTest1);
+    tcase_add_test(tc1_1, isValidFormTest2);
+    tcase_add_test(tc1_1, isValidFormTest3);
+    tcase_add_test(tc1_1, isValidFormTest4);
+    tcase_add_test(tc1_1, isValidFormTest5);
+    tcase_add_test(tc1_1, isValidFormTest6);
+    tcase_add_test(tc1_1, getVarLength1);
+    tcase_add_test(tc1_1, getVarLength2);
+    tcase_add_test(tc1_1, getSubString1);
+    tcase_add_test(tc1_1, getSubString2);
+    tcase_add_test(tc1_1, parseLine1);
+    tcase_add_test(tc1_1, parseLine2);
+    tcase_add_test(tc1_1, concatString1);
+    tcase_add_test(tc1_1, concatString2);
 
     srunner_run_all(sr, CK_ENV);
     nf = srunner_ntests_failed(sr);

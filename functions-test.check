@@ -105,104 +105,183 @@
 	close(fileHandle);
 	remove("test.txt");
 
-#test parseLineTest1
-	/* TEST INPUT 1 */
-	char* pltest;
-	pltest = "this is a test";
-	char* pltest_expected;
-	pltest_expected = "this is a test";
+#test findDollarSignTest
+	char* test;
+	test = "this is a $test";
+	int expected;
+	expected = 10;
+	int observed;
+	observed = findDollarSign(test, 0);
 
-	char* parsed;
+	fail_unless(expected == observed, "dollar sign not found at correct location");
 
-	/* CHECK INPUT 1 */
-	parsed = parseLine(pltest);
-	printf("PARSELINE TEST 1 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 1 returned value: %s\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
-	printf("\n");
+#test isValidFormTest1
+	char* test;
+	test = "$";
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
 
-#test parseLineTest2
-	/* TEST INPUT 2 */
-	char* pltest;
-	pltest = "$path";
-	char* pltest_expected;
-	pltest_expected = " ";
+	fail_unless(observed == expected);
 
-	char* parsed;
+#test isValidFormTest2
+	char* test;
+	test = "$var";
+	int expected;
+	expected = 1;
+	int observed;
+	observed = isValidForm(test, 0);
 
-	/* CHECK INPUT 2 */
-	parsed = parseLine(pltest);
-	printf("PARSELINE TEST 2 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 2 returned value: %s\n\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
+	fail_unless(observed == expected);
+
+#test isValidFormTest3
+	char* test;
+	test = "$3rf";
+	fail_unless(stringLength(test) == 4, "stringLenth invalid\n");
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+#test isValidFormTest4
+	char* test;
+	test = "$_var";
+	int expected;
+	expected = 1;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+#test isValidFormTest5
+	char* test;
+	test = "$v=r";
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+#test isValidFormTest6
+	char* test;
+	test = "$ ";
+	int expected;
+	expected = 0;
+	int observed;
+	observed = isValidForm(test, 0);
+
+	fail_unless(observed == expected);
+
+#test getVarLength1
+	char* test;
+	test = "get the $var length";
+	int expected;
+	expected = 4;
+	int observed;
+	observed = getVarLength(test, 8);
 	
-#test parseLineTest3
-	/* TEST INPUT 3 */
-	setenv("var", "new value", 0);
-	fail_unless(strcmp(getEnvVal("var"), "new value") == 0, "setting environment variable failed in test setup");
-	char* pltest;
-	pltest = "$var";
-	char* pltest_expected;
-	pltest_expected = "new value";
+	fail_unless(expected == observed, "expected did not equal observed");
 
-	char* parsed;
-
-	/* CHECK INPUT 3 */
-	parsed = parseLine(pltest);
-	printf("PARSELINE TEST 3 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 3 returned value: %s\n\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
-
-#test parseLineTest4
-	/* TEST INPUT 4 */
-	char* pltest;
-	pltest = "$PATH $PATH $PATH $PATH $PATH";
-	char* pltest_expected;
-	pltest_expected = NULL;
-
-	char* parsed;
-
-	/* CHECK INPUT 4 */
-	parsed = parseLine(pltest);
-	printf("PARSELINE TEST 4 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 4 returned value: %s\n\n", parsed);
-	fail_unless(parsed == pltest_expected, "returned string was not the same as expected\n");
-
-#test parseLineTest5
-	/* TEST INPUT 5 */
-	char* pltest;
-	pltest = "$PATH$PATH";
-	char* pltest_expected;
-	pltest_expected = " ";
-
-	char* parsed;
-
-	/* CHECK INPUT 5 */
-	parsed = parseLine(pltest);
-	printf("PARSELINE TEST 5 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 5 returned value: %s\n\n", parsed);
-	fail_unless(parsed == pltest_expected, "returned string was not the same as expected\n");
-
-#test parseLineTest6
-	/* TEST INPUT 6 */
-	setenv("var", "new value", 0);
-	fail_unless(strcmp(getEnvVal("var"), "new value") == 0, "setting environment variable failed in test setup");
-	char* pltest;
-	pltest = "$var ";
-	char* pltest_expected;
-	pltest_expected = "new value";
-
-	char* parsed;
-
-	/* CHECK INPUT 6 */
-	parsed = parseLine(pltest);
-	printf("PARSELINE TEST 6 expected value: %s\n", pltest_expected);
-	printf("PARSELINE TEST 6 returned value: %s\n\n", parsed);
-	fail_unless(strcmp(parsed, pltest_expected) == 0, "returned string was not the same as expected\n");
-
-
-
+#test getVarLength2
+	char* test;
+	test = "get the $var";
+	int expected;
+	expected = 4;
+	int observed;
+	observed = getVarLength(test, 8);
 	
+	fail_unless(expected == observed, "expected did not equal observed");
+
+#test getSubString1
+	char* test;
+	test = "$var $var";
+	char* expected;
+	expected = "$var";
+	char* observed;
+	observed = getSubString(test, 0, 3);
+
+	fail_unless(strcmp(expected, observed) == 0, "expected was not equal to observed");
+	
+#test getSubString2
+	char* test;
+	test = "$var $var";
+	char* expected;
+	expected = "$var";
+	char* observed;
+	observed = getSubString(test, 5, 8);
+
+	fail_unless(strcmp(expected, observed) == 0, "expected was not equal to observed");
+#
+#test parseLine1
+	setenv("var", "new value", 0);
+	printf("test1\n");
+	char* test;
+	test = "$var $2var";
+	char* parsed;
+	parsed = parseLine(test);
+
+#test parseLine2
+	setenv("var", "new value", 0);
+	printf("test2\n");
+	char* test;
+	test = "$var $var";
+	char* parsed;
+	parsed = parseLine(test);
+
+#test concatString1
+	char* str1;
+	char* str2;
+	char* expected;
+	char* observed;
+
+	str1 = "var ";
+	str2 = "var";
+	expected = "var var";
+	observed = concatString(str1, str2);
+	printf("%s\n", observed);
+
+	fail_unless(strcmp(expected,observed) == 0, "not equal strings");
+
+#test concatString2
+	char* str1;
+	char* str2;
+	char* str3;
+	char* expected;
+	char* observed;
+	char* test;
+
+	test = "beginning middle end";
+	str1 = getSubString(test, 0, 9);
+	str2 = getSubString(test, 10, 15);
+	str3 = getSubString(test, 16, 19);
+	expected = "beginning middle end";
+	char* half;
+	half = concatString(str1, str2);
+	observed = concatString(half, str3);
+	printf("%s\n", observed);
+
+	fail_unless(strcmp(expected,observed) == 0, "not equal strings");
+	fail_unless(stringLength(test) == 20, "fail");	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
